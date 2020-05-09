@@ -7,6 +7,76 @@ import random
 
 
 
+class DrawConsole:
+
+	"""docstring for DrawConsole"""
+
+	def __init__(self, hero , liste_objets , sortie , mur):
+
+		self.liste_positions_objets = []
+
+		for i0 in liste_objets :
+			
+			self.liste_positions_objets.append( i0.position )
+
+
+		screen = ''
+
+		for i0 in range( 15 + 2 ):
+			
+			for i1 in range( 15 + 2 ):
+				
+
+				if hero == ( i1 , i0 ) :
+					
+					screen += ' M '
+
+				elif ( i1 , i0 ) in self.liste_positions_objets :
+
+					#screen += ' O 
+
+
+					if liste_objets[ self.liste_positions_objets.index( ( i1 , i0 ) ) ].nom_objet == 'aiguille' :
+						
+						screen += ' I '
+
+					elif liste_objets[ self.liste_positions_objets.index( ( i1 , i0 ) ) ].nom_objet == 'tube_plastiqe' :
+						
+						screen += ' T '
+
+					elif liste_objets[ self.liste_positions_objets.index( ( i1 , i0 ) ) ].nom_objet == 'ether' :
+						
+						screen += ' E '
+
+
+				elif sortie == ( i1 , i0 ) :
+					
+					screen += ' S '
+
+				elif ( i1 , i0 ) in mur :
+
+					screen += ' X '
+
+				#elif  ( ( i1 , i0 ) in aiguille.route_mg ) or ( ( i1 , i0 ) in tube_plastiqe.route_mg ) or ( ( i1 , i0 ) in ether.route_mg ) or ( ( i1 , i0 ) in sortie.route_mg )  :
+				#
+				#	screen += ' . '
+
+				else :
+
+					screen += '   '
+
+
+			screen += '\n'
+
+
+
+		print( screen )
+		
+
+
+
+
+
 class Plateau:
 
 	"""docstring for Plateau"""
@@ -45,27 +115,26 @@ class Plateau:
 						pass
 
 
-		
-
-
-
 
 
 class ObjetsRamasses:
 
 	"""docstring for Objets"""
 
-	def __init__( self , taille_plateau ):
+	def __init__( self , taille_plateau , nom_de_lobjet ):
 
 		self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
 
 		self.route_mg = []
 
+		self.nom_objet = nom_de_lobjet
+
 		#print( self.position )
+
+	def ramassage( self ):
 		
-
-
-
+		self.position = ( -1 , -1 )
+		
 	
 
 
@@ -94,9 +163,7 @@ class Sortie:
 
 		self.route_mg = []
 		
-		
-
-
+	
 
 
 class Ligne(object):
@@ -104,6 +171,8 @@ class Ligne(object):
 	"""docstring for Ligne"""
 
 	pass
+
+
 
 
 
@@ -118,6 +187,32 @@ class Heros:
 		self.objet_ramasse = [] ;
 
 		#print( self.position )
+
+	def pas_mcgyver( self , direction ):
+
+		if direction == 'j' :
+
+			self.new_pos = ( self.position[0] - 1 , self.position[1] )
+		
+		elif direction == 'l' :
+
+			self.new_pos = ( self.position[0] + 1 , self.position[1] )
+
+		elif direction == 'k' :
+
+			self.new_pos = ( self.position[0] , self.position[1] + 1 )
+
+		elif direction == 'i' :
+
+			self.new_pos = ( self.position[0] , self.position[1] - 1 )
+
+		else:
+
+			self.new_pos = ( self.position[0] , self.position[1] )
+
+			print( 'Sélectionner une direction valide !!' )
+
+		return( self.new_pos )
 
 
 
@@ -231,7 +326,7 @@ def main():
 
 
 
-	aiguille = ObjetsRamasses( 15 )
+	aiguille = ObjetsRamasses( 15 , 'aiguille' )
 
 	# Test si la position de l'aiguille est déjà occupée
 
@@ -255,13 +350,13 @@ def main():
 
 		aiguille.route_mg.append( lepas )
 
-	print( aiguille.route_mg )
+	#print( aiguille.route_mg )
 
 
 
 
 
-	tube_plastiqe = ObjetsRamasses( 15 )
+	tube_plastiqe = ObjetsRamasses( 15 , 'tube_plastiqe' )
 
 	# Test si la position du tube en plastiqe est déjà occupée
 
@@ -285,13 +380,13 @@ def main():
 
 		tube_plastiqe.route_mg.append( lepas )
 
-	print( tube_plastiqe.route_mg )
+	#print( tube_plastiqe.route_mg )
 
 
 
 
 
-	ether = ObjetsRamasses( 15 )
+	ether = ObjetsRamasses( 15 , 'ether' )
 
 	# Test si la position de l'ether est déjà occupée
 
@@ -315,7 +410,7 @@ def main():
 
 		ether.route_mg.append( lepas )
 
-	print( ether.route_mg )
+	#print( ether.route_mg )
 
 
 
@@ -345,7 +440,7 @@ def main():
 
 		sortie.route_mg.append( lepas )
 
-	print( 'sortie ' , sortie.route_mg )
+	#print( 'sortie ' , sortie.route_mg )
 
 
 
@@ -377,50 +472,52 @@ def main():
 	"""
 
 
-	screen = ''
+	
 
-	for i0 in range( 15 ):
+
+	while mg.position != sortie.position :
+
+		DrawConsole( mg.position , [ aiguille , tube_plastiqe , ether ] , sortie.position , plateau.mur)
+
+		direction_input = input("Déplacer McGyver !! \n\n j : vers la gauche\n l : vers la droite\n k : vers le bas\n i : vers le haut\n\n ")
+
+		if ( mg.pas_mcgyver( direction_input ) not in plateau.mur ) and ( mg.pas_mcgyver( direction_input ) in plateau.plateauvide ) :
+			
+			mg.position = mg.pas_mcgyver( direction_input )
+
+			if mg.position == aiguille.position :
+
+				mg.objet_ramasse.append( aiguille.nom_objet )
+
+				aiguille.ramassage()
+
+			elif mg.position == tube_plastiqe.position :
+
+				mg.objet_ramasse.append( tube_plastiqe.nom_objet )
+
+				tube_plastiqe.ramassage()
+
+			elif mg.position == ether.position :
+
+				mg.objet_ramasse.append( ether.nom_objet )
+
+				ether.ramassage()
+
+
+	DrawConsole( mg.position , [ aiguille , tube_plastiqe , ether ] , sortie.position , plateau.mur)
+
+	if len( mg.objet_ramasse ) == 3 :
 		
-		for i1 in range( 15  ):
+		print('\n\n Gagné ')
 
-			if mg.position == ( i1 , i0 ) :
+	else:
+
+		print('\n\n Perdu ')
+
+
 				
-				screen += ' M '
+		 
 
-			elif aiguille.position == ( i1 , i0 ) :
-				
-				screen += ' I '
-
-			elif tube_plastiqe.position == ( i1 , i0 ) :
-				
-				screen += ' T '
-
-			elif ether.position == ( i1 , i0 ) :
-				
-				screen += ' E '
-
-			elif sortie.position == ( i1 , i0 ) :
-				
-				screen += ' S '
-
-			elif ( i1 , i0 ) in plateau.mur :
-
-				screen += ' X '
-
-			elif  ( ( i1 , i0 ) in aiguille.route_mg ) or ( ( i1 , i0 ) in tube_plastiqe.route_mg ) or ( ( i1 , i0 ) in ether.route_mg ) or ( ( i1 , i0 ) in sortie.route_mg )  :
-
-				screen += ' . '
-
-			else :
-
-				screen += '   '
-
-
-		screen += '\n'
-
-
-
-	print( screen )
 		
 
 
