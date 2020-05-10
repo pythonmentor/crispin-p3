@@ -7,6 +7,10 @@ import random
 
 import json
 
+import pygame
+from pygame.locals import *
+
+import time
 
 
 
@@ -98,7 +102,7 @@ class Plateau:
 				
 				self.plateauvide.append( ( i1 , i0 ) )
 
-		with open("structure.json", "r") as read_file:
+		with open("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json", "r") as read_file:
 
 			data = json.load(read_file)
 
@@ -315,7 +319,7 @@ class Sortie:
 
 		self.route_mg = []
 
-		with open("structure.json", "r") as read_file:
+		with open( "/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json" , "r") as read_file:
 
 			data = json.load(read_file)
 
@@ -331,7 +335,7 @@ class Heros:
 
 		#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
 
-		with open("structure.json", "r") as read_file:
+		with open( "/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json" , "r") as read_file:
 
 			data = json.load(read_file)
 
@@ -373,11 +377,11 @@ class Gardien:
 
 	"""docstring for Gardien"""
 	
-	def __init__( self ):
+	def __init__( self , taille_plateau ):
 
 		#self.position = ( 0 , 0)
 
-		with open("structure.json", "r") as read_file:
+		with open( "/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json" , "r") as read_file:
 
 			data = json.load(read_file)
 
@@ -392,6 +396,8 @@ plateau0 = Plateau( 15 )
 mg0 = Heros(15)
 
 sortie0 = Sortie(15)
+
+gardien0 = Gardien(15)
 
 position_objets_ramasse = []
 
@@ -432,32 +438,42 @@ class ObjetsRamasses:
 
 		champs_accessibles = list( movables )
 
+		champs_accessibles.remove( mg0.position )
+
 		random.shuffle( champs_accessibles )
 
 
-				
+		if len( champs_accessibles ) < 3 :
 
-		#print( ' champs libre apres ' , champs_libres0 )
+			self.position = ( -1 , -1 )
+			
+			print( 'ce tableau ne permet pas de placer 3 objets accessible par McGyver !!' )
 
-		#print( ' les movables apres ' , movables )
+		else :
 
-		while ( champs_accessibles[0] in position_objets_ramasse ):
+			#print( ' champs libre apres ' , champs_libres0 )
 
-			random.shuffle( champs_accessibles )
+			#print( ' les movables apres ' , movables )
 
-		self.position = champs_accessibles[ 0 ]
+			while ( champs_accessibles[0] in position_objets_ramasse ):
 
-		position_objets_ramasse.append( champs_accessibles[ 0 ] )
+				random.shuffle( champs_accessibles )
+
+			self.position = champs_accessibles[ 0 ]
+
+			position_objets_ramasse.append( champs_accessibles[ 0 ] )
 
 
-		#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
+			#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
 
 
 		self.route_mg = []
 
 		self.nom_objet = nom_de_lobjet
 
-		#print( self.position )
+		print( ' champs_accessibles : ' ,  champs_accessibles )
+		print( ' position de mcgyver : ' , mg0.position )
+		print( ' position de ' + self.nom_objet + ' : ' , self.position )
 
 	def ramassage( self ):
 		
@@ -774,9 +790,266 @@ def generate_structure():
 	
 
 
+
+
+
+def jeu_console():
+	
+
+	while mg0.position != sortie0.position :
+
+		DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
+
+		direction_input = input("Déplacer McGyver !! \n\n j : vers la gauche\n l : vers la droite\n k : vers le bas\n i : vers le haut\n\n ")
+
+		if ( mg0.pas_mcgyver( direction_input ) not in plateau0.mur ) and ( mg0.pas_mcgyver( direction_input ) in plateau0.plateauvide ) :
+			
+			mg0.position = mg0.pas_mcgyver( direction_input )
+
+			if mg0.position == aiguille0.position :
+
+				mg0.objet_ramasse.append( aiguille0.nom_objet )
+
+				aiguille0.ramassage()
+
+			elif mg0.position == tube_plastiqe0.position :
+
+				mg0.objet_ramasse.append( tube_plastiqe0.nom_objet )
+
+				tube_plastiqe0.ramassage()
+
+			elif mg0.position == ether0.position :
+
+				mg0.objet_ramasse.append( ether0.nom_objet )
+
+				ether0.ramassage()
+
+
+	DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
+
+	if len( mg0.objet_ramasse ) == 3 :
+		
+		print('\n\n Gagné ')
+
+	else:
+
+		print('\n\n Perdu ')
+
+
+
+
+
+
+
+
+def jeu_pygame():
+
+	
+	pygame.init()
+
+	fenetre = pygame.display.set_mode((600,600), RESIZABLE )
+
+
+
+	pygame_wall = []
+
+
+
+	fond = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/fbc1.png").convert()
+	fenetre.blit(fond, (0,0))
+
+
+
+	#  Placement des murs
+
+	for i0 in plateau0.mur :
+		
+		pygame_wall.append( pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/brique.png").convert() )
+
+	#print( pygame_wall )
+
+	for i1  in pygame_wall:
+		
+		fenetre.blit( i1 , ( plateau0.mur[ pygame_wall.index( i1 )][0] * 40 , plateau0.mur[ pygame_wall.index( i1 )][1] * 40 ) )
 	
 
 
+
+	#  Placement de McGyver et du gardien
+
+	# McGyver
+	py_mcgyver = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/mcgyver0.png").convert_alpha()
+	fenetre.blit( py_mcgyver , ( mg0.position[0] * 40 , mg0.position[1] * 40 ) )
+
+	# Gardien
+
+	py_gardien = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/gardien1.png").convert_alpha()
+
+	anneau_sortie = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/anneaurouge.png").convert_alpha()
+
+	fenetre.blit( py_gardien , ( (gardien0.position[0] * 40) + 7.5 , ( gardien0.position[1] * 40 ) + 7.5 ) )	
+
+	fenetre.blit( anneau_sortie , ( gardien0.position[0] * 40 , gardien0.position[1] * 40 ) )	
+
+	
+
+	# Placement des objets à ramasser
+
+	anneau_objets = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/anneauvert.png").convert_alpha()
+
+	# aiguille
+	py_aiguille0 = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/aiguille1.png").convert_alpha()
+	fenetre.blit( py_aiguille0 , ( ( aiguille0.position[0] * 40 ) + 7.5 , ( aiguille0.position[1] * 40) + 7.5 ) )	
+	fenetre.blit( anneau_objets , ( aiguille0.position[0] * 40 , aiguille0.position[1] * 40 ) )	
+
+	# tube plastique
+	py_tube_plastique0 = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/tube_plastique1.png").convert()
+	fenetre.blit( py_tube_plastique0 , ( ( tube_plastiqe0.position[0] * 40 ) + 7.5 , ( tube_plastiqe0.position[1] * 40 ) + 7.5 ) )	
+	fenetre.blit( anneau_objets , ( tube_plastiqe0.position[0] * 40 , tube_plastiqe0.position[1] * 40 ) )	
+
+	# ether
+	py_ether0 = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/ether1.png")
+	fenetre.blit( py_ether0 , ( ( ether0.position[0] * 40 ) + 7.5 , ( ether0.position[1] * 40 ) + 7.5 ) )	
+	fenetre.blit( anneau_objets , ( ether0.position[0] * 40 , ether0.position[1] * 40 ) )	
+
+
+
+
+
+	pygame.display.flip()
+
+
+	#while mg0.position != sortie0.position :
+
+	#print( mg0.position )
+
+	quitter = ''
+
+	while mg0.position != gardien0.position :
+
+		
+
+		for event in pygame.event.get():
+
+			if event.type == QUIT:
+
+				quitter = 'q'
+
+			if event.type == KEYDOWN:
+
+				if event.key == 276:
+
+					direction_input = 'j'
+
+				elif event.key == 273:
+
+					direction_input = 'i'
+
+				elif event.key == 275:
+
+					direction_input = 'l'
+
+				elif event.key == 274:
+
+					direction_input = 'k'
+
+				else:
+
+					direction_input = 'a'
+
+
+				if ( mg0.pas_mcgyver( direction_input ) not in plateau0.mur ) and ( mg0.pas_mcgyver( direction_input ) in plateau0.plateauvide ) :
+			
+					mg0.position = mg0.pas_mcgyver( direction_input )
+
+					if mg0.position == aiguille0.position :
+
+						mg0.objet_ramasse.append( aiguille0.nom_objet )
+
+						aiguille0.ramassage()
+
+					elif mg0.position == tube_plastiqe0.position :
+
+						mg0.objet_ramasse.append( tube_plastiqe0.nom_objet )
+
+						tube_plastiqe0.ramassage()
+
+					elif mg0.position == ether0.position :
+
+						mg0.objet_ramasse.append( ether0.nom_objet )
+
+						ether0.ramassage()
+
+
+
+				#  Déplacement de McGyver et du gardien
+
+				print( mg0.position[0] )
+
+
+
+
+
+				fenetre.blit(fond, (0,0))
+
+				for i1  in pygame_wall:
+						
+						fenetre.blit( i1 , ( plateau0.mur[ pygame_wall.index( i1 )][0] * 40 , plateau0.mur[ pygame_wall.index( i1 )][1] * 40 ) )
+
+				fenetre.blit( py_aiguille0 , ( ( aiguille0.position[0] * 40 ) + 7.5 , ( aiguille0.position[1] * 40 ) + 7.5 ) )	
+				fenetre.blit( anneau_objets , ( aiguille0.position[0] * 40 , aiguille0.position[1] * 40 ) )	
+
+				fenetre.blit( py_tube_plastique0 , ( ( tube_plastiqe0.position[0] * 40 ) + 7.5 , ( tube_plastiqe0.position[1] * 40 ) + 7.5 ) )
+				fenetre.blit( anneau_objets , ( tube_plastiqe0.position[0] * 40 , tube_plastiqe0.position[1] * 40 ) )
+
+				fenetre.blit( py_ether0 , ( ( ether0.position[0] * 40 ) + 7.5 , ( ether0.position[1] * 40 ) + 7.5 ) )	
+				fenetre.blit( anneau_objets , ( ether0.position[0] * 40 , ether0.position[1] * 40 ) )
+
+
+
+
+				fenetre.blit( py_mcgyver , ( mg0.position[0] * 40 , mg0.position[1] * 40 ) )
+
+
+
+				if mg0.position == gardien0.position :
+
+					if len( mg0.objet_ramasse ) == 3 :
+
+						image_fin = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/gagne.png").convert()
+
+					else:
+
+						image_fin = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/perdu.png").convert()
+
+					fenetre.blit( image_fin , ( 100 , 200 ) )
+
+				else:
+
+					if len( mg0.objet_ramasse ) == 3 :
+
+						anneau_sortie = pygame.image.load("/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/macgyver_ressources/ressource/anneauvert.png").convert_alpha()
+						
+
+					fenetre.blit( py_gardien , ( ( gardien0.position[0] * 40 ) + 7.5 , ( gardien0.position[1] * 40 ) + 7.5 ) )
+
+					fenetre.blit( anneau_sortie , ( gardien0.position[0] * 40 , gardien0.position[1] * 40 ) )
+
+
+
+
+
+				pygame.display.flip()
+
+
+				if mg0.position == gardien0.position :
+
+					time.sleep( 5 )
+
+
+
+
+					
 
 
 
@@ -855,48 +1128,39 @@ def main():
 	"""
 
 
+	#jeu_console()
 
 
+	input_demarrage = input( " Bienvenu dans McGyver Labyrinthe game \n Entre 'c' pour jouer en mode console\n Entrez 'p' pour jouer en mode pygame ( recommandé ) \n Entrez 'q' pour quitter\n" )
 
-
-	while mg0.position != sortie0.position :
-
-		DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
-
-		direction_input = input("Déplacer McGyver !! \n\n j : vers la gauche\n l : vers la droite\n k : vers le bas\n i : vers le haut\n\n ")
-
-		if ( mg0.pas_mcgyver( direction_input ) not in plateau0.mur ) and ( mg0.pas_mcgyver( direction_input ) in plateau0.plateauvide ) :
-			
-			mg0.position = mg0.pas_mcgyver( direction_input )
-
-			if mg0.position == aiguille0.position :
-
-				mg0.objet_ramasse.append( aiguille0.nom_objet )
-
-				aiguille0.ramassage()
-
-			elif mg0.position == tube_plastiqe0.position :
-
-				mg0.objet_ramasse.append( tube_plastiqe0.nom_objet )
-
-				tube_plastiqe0.ramassage()
-
-			elif mg0.position == ether0.position :
-
-				mg0.objet_ramasse.append( ether0.nom_objet )
-
-				ether0.ramassage()
-
-
-	DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
-
-	if len( mg0.objet_ramasse ) == 3 :
+	while ( input_demarrage not in [ 'c' , 'p' , 'q' ] ):
 		
-		print('\n\n Gagné ')
+		input_demarrage = input( " Bienvenu dans McGyver Labyrinthe game \n Entre 'c' pour jouer en mode console\n Entrez 'p' pour jouer en mode pygame ( recommandé ) \n Entrez 'q' pour quitter\n " )
 
-	else:
+	if input_demarrage == 'c' :
 
-		print('\n\n Perdu ')
+		jeu_console()
+	
+	elif input_demarrage == 'p' :
+
+		jeu_pygame()
+
+	elif input_demarrage == 'q' :
+
+		pass
+
+
+	
+	
+
+
+	
+
+
+
+
+
+	
 
 
 
