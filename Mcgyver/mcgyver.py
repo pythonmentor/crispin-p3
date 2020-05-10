@@ -1,7 +1,7 @@
 
 
 
-
+# -tc- attention à structurer les imports en conformité avec la PEP8
 
 import random
 
@@ -13,16 +13,17 @@ from pygame.locals import *
 import time
 
 
+# -tc- structurer le projet avec une classe par module en séparant les classes de logique et les classes
+# -tc- d'interface dans des packages séparer. Partager les classes de logique entre la version terminal 
+# -tc- et la version gui du jeu.
 
 
 
+class DrawConsole: # -tc- une classe n'est pas une action. De manière générale, attention à la PEP 8 et à la PEP 257
 
+	"""docstring for DrawConsole""" # -tc- être plus descriptif dans ses docstrings
 
-class DrawConsole:
-
-	"""docstring for DrawConsole"""
-
-	def __init__(self, hero , liste_objets , sortie , mur):
+	def __init__(self, hero , liste_objets , sortie , mur): # -tc- passer des objets représentants le hero et le plateau de jeu
 
 		self.liste_positions_objets = []
 
@@ -33,7 +34,7 @@ class DrawConsole:
 
 		screen = ''
 
-		for i0 in range( 15 + 2 ):
+		for i0 in range( 15 + 2 ): # -tc- ne pas définir en dur la taille du labyrinthe. La déduire de la structure
 			
 			for i1 in range( 15 + 2 ):
 				
@@ -44,7 +45,7 @@ class DrawConsole:
 
 				elif ( i1 , i0 ) in self.liste_positions_objets :
 
-					#screen += ' O 
+					#screen += ' O # -tc- manque un guillemet
 
 
 					if liste_objets[ self.liste_positions_objets.index( ( i1 , i0 ) ) ].nom_objet == 'aiguille' :
@@ -82,7 +83,8 @@ class DrawConsole:
 
 
 		print( screen )
-		
+
+                # -tc- à formater correctement. Pas très orienté objet mais fait globalement le job
 
 
 
@@ -90,9 +92,9 @@ class DrawConsole:
 
 class Plateau:
 
-	"""docstring for Plateau"""
+	"""docstring for Plateau""" # -tc- être plus descriptif et attention à la pep8
 
-	def __init__( self , taille_plateau ):
+	def __init__( self , taille_plateau ): # -tc- passer un objet représentant le plateau de jeu 
 
 		self.plateauvide = []
 		
@@ -110,14 +112,14 @@ class Plateau:
 
 		for i0 in data[ 0 ]:
 		 	
-		 	self.mur.append( tuple( i0 ) )
+		 	self.mur.append( tuple( i0 ) ) # -tc- ce qui nous nous intéresse plus que les murs , c'est les chemins. Nommer la liste au pluriel
 
 
 
 
-	def initialisemur( self , taille_plateau , route1 , route2 , route3 , route4 ):
+	def initialisemur( self , taille_plateau , route1 , route2 , route3 , route4 ): # -tc- pourquoi tous ces paramètres inutiles?
 
-		self.mur = []
+		self.mur = [] # -tc- l'objectif de cette méthode n'est pas clair
 
 		for i0 in range( taille_plateau ):
 			
@@ -138,7 +140,7 @@ class Plateau:
 						pass
 
 
-	def move_posible( self , point , champs_libres ):
+	def move_posible( self , point , champs_libres ): # -tc- inutilement compliqué et répétitif. On peut décider si un mouvement est possible en une ligne. De manière générale, si une méthode fait plus de 20 lignes: factoriser 
 
 		mov_posible = []
 
@@ -287,11 +289,12 @@ class Plateau:
 		return( mov_posible )
 
 
-	def mur_to_champs_libres( self , mur , position_sortie ):
+	def mur_to_champs_libres( self , mur , position_sortie ): # -tc- avec une description complète du labyrinthe dès le départ, cela n'est normalement pas nécessaire
+
 
 		champs_libres = []
 
-		for i0 in range( 15 ):
+		for i0 in range( 15 ): # -tc- éviter de coder la taille en dur
 			
 			for i1 in range( 15 ):
 				
@@ -302,7 +305,7 @@ class Plateau:
 		return( champs_libres )
 
 
-	def movables_in_champs_libres( self , i , movables  , champs_libres ):
+	def movables_in_champs_libres( self , i , movables  , champs_libres ): # -tc- quel est l'objectif?
 
 
 		return( len( self.move_posible( movables[ i ] , champs_libres ) ) )
@@ -327,7 +330,7 @@ class Sortie:
 		
 
 
-class Heros:
+class Heros: # -tc- le nom d'une classe est généralement au singulier
 
 	"""docstring for Heros"""
 
@@ -337,7 +340,7 @@ class Heros:
 
 		with open( "/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json" , "r") as read_file:
 
-			data = json.load(read_file)
+			data = json.load(read_file) # -tc- pourquoi on lit une seconde fois le fichier
 
 		self.position = tuple( data[ 1 ] )
 
@@ -367,7 +370,7 @@ class Heros:
 
 			self.new_pos = ( self.position[0] , self.position[1] )
 
-			print( 'Sélectionner une direction valide !!' )
+			print( 'Sélectionner une direction valide !!' ) # -tc- éviter les print dans une classe de logique
 
 		return( self.new_pos )
 
@@ -383,13 +386,13 @@ class Gardien:
 
 		with open( "/home/crispin/Documents/OC/P3/Mcgyver/Mcgyver/structure.json" , "r") as read_file:
 
-			data = json.load(read_file)
+			data = json.load(read_file) # -tc- inutile de lire plusieurs fois le fichier alors qu'une lecture en une seule passe suffit
 
 		self.position = tuple( data[ 2 ] )
 
 
 
-
+# -tc- ne pas mettre de code au niveau global du module. Utiliser des classes + une fonction main() pour démarrer le jeu
 		
 plateau0 = Plateau( 15 )
 
@@ -405,7 +408,7 @@ position_objets_ramasse = []
 
 
 
-class ObjetsRamasses:
+class ObjetsRamasses: # -tc- essaie
 
 	"""docstring for Objets"""
 
