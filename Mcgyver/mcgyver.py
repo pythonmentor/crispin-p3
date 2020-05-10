@@ -5,6 +5,13 @@
 
 import random
 
+import json
+
+
+
+
+
+
 
 
 class DrawConsole:
@@ -91,6 +98,18 @@ class Plateau:
 				
 				self.plateauvide.append( ( i1 , i0 ) )
 
+		with open("structure.json", "r") as read_file:
+
+			data = json.load(read_file)
+
+		self.mur = []
+
+		for i0 in data[ 0 ]:
+		 	
+		 	self.mur.append( tuple( i0 ) )
+
+
+
 
 	def initialisemur( self , taille_plateau , route1 , route2 , route3 , route4 ):
 
@@ -115,41 +134,174 @@ class Plateau:
 						pass
 
 
+	def move_posible( self , point , champs_libres ):
 
+		mov_posible = []
 
-class ObjetsRamasses:
-
-	"""docstring for Objets"""
-
-	def __init__( self , taille_plateau , nom_de_lobjet ):
-
-		self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
-
-		self.route_mg = []
-
-		self.nom_objet = nom_de_lobjet
-
-		#print( self.position )
-
-	def ramassage( self ):
+		#   Les coins
 		
-		self.position = ( -1 , -1 )
-		
-	
+		if point == ( 0 , 0 ) or point == ( 0 , 15 - 1 ) or point == ( 15 - 1 , 0 ) or point == ( 15 - 1 , 15 - 1 ) :
+			
+			#  coin bas gauche
+
+			if point == ( 0 , 0 ) :
+
+				if ( 1 , 0 ) in champs_libres:
+
+					mov_posible.append( ( 1 , 0 ) )
+
+				if ( 0 , 1 ) in champs_libres :
+					
+					mov_posible.append( ( 0 , 1 ) )
+
+			# coin haut gauche
+
+			elif point == ( 0 , 15 - 1 ) :
+
+				if ( 0 , (15 - 1) - 1 ) in champs_libres:
+
+					mov_posible.append( ( 0 , (15 - 1) - 1 ) )
+
+				if ( 1 , 15 - 1 ) in champs_libres :
+					
+					mov_posible.append( ( 1 , 15 - 1 )  )
+
+			# coin bas droit
+
+			elif point == ( 15 - 1 , 0 ) :
+
+				if ( (15 - 1) - 1 , 0 ) in champs_libres:
+
+					mov_posible.append( ( (15 - 1) - 1 , 0 ) )
+
+				if ( 15 - 1 , 1 ) in champs_libres:
+					
+					mov_posible.append( ( 15 - 1 , 1 ) )
+
+			# coin haut droit
+
+			elif point == ( 15 - 1 , 15 - 1 ) :
+
+				if ( (15 - 1) - 1 , 15 - 1 ) in champs_libres:
+
+					mov_posible.append( ( (15 - 1) - 1 , 15 - 1 ) )
+
+				if ( 15 - 1 , (15 - 1) - 1 ) in champs_libres :
+					
+					mov_posible.append( ( 15 - 1 , (15 - 1) - 1 ) )
+
+		# Les extrémités
+
+		elif ( point[0] == 0 ) or ( point[0] == 15 - 1 ) or ( point[1] == 0 ) or ( point[1] == 15 - 1 ) :
+			
+			#extrémités gauches
+
+			if  point[0] == 0 :
+				
+				if ( 0 , point[1] + 1 ) in champs_libres :
+
+					mov_posible.append( ( 0 , point[1] + 1 ) );
+
+				if ( 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( 1 , point[1] ) );
+
+				if ( 0 , point[1] - 1 ) in champs_libres  :
+
+					mov_posible.append( ( 0 , point[1] - 1 ) );
+
+			#extrémités droits
+
+			elif ( point[0] == 15 - 1 ) :
+
+				if ( point[0] - 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( point[0] - 1 , point[1] ) )
+
+				if ( point[0] , point[1] - 1 ) in champs_libres :
+
+					mov_posible.append( ( point[0] , point[1] - 1 ) )
+
+				if ( point[0] , point[1] + 1 ) in champs_libres :
+
+					mov_posible.append( ( point[0] , point[1] + 1 ) )
+
+			#extrémités bas
+
+			elif ( point[1] == 0 ) :
+
+				if ( point[0] - 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( point[0] - 1 , point[1] ) )
+
+				if ( point[0] + 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( point[0] + 1 , point[1] ) )
+
+				if ( point[0] , point[1] + 1 ) in champs_libres :
+
+					mov_posible.append( ( point[0] , point[1] + 1 ) )
+
+			#extrémités hauts
+
+			elif ( point[1] == 15 - 1 ) :
+
+				if ( point[0] - 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( point[0] - 1 , point[1] ) )
+
+				if ( point[0] + 1 , point[1] ) in champs_libres :
+
+					mov_posible.append( ( point[0] + 1 , point[1] ) )
+
+				if ( point[0] , point[1] - 1 ) in champs_libres :
+
+					mov_posible.append( ( point[0] , point[1] - 1 ) )
 
 
+		# le reste
 
-class Gardien:
+		else : 
+			
+			if ( point[0] - 1 , point[1] ) in champs_libres :
 
-	"""docstring for Gardien"""
-	
-	def __init__( self ):
+				mov_posible.append( ( point[0] - 1 , point[1] ) )
 
-		self.position = ( 0 , 0)
+			if ( point[0] + 1 , point[1] ) in champs_libres :
 
-		#print( self.position )
+				mov_posible.append( ( point[0] + 1 , point[1] ) )
+
+			if ( point[0] , point[1] - 1 ) in champs_libres :
+
+				mov_posible.append( ( point[0] , point[1] - 1 ) )
+
+			if ( point[0] , point[1] + 1 ) in champs_libres :
+
+				mov_posible.append( ( point[0] , point[1] + 1 ) )
 
 
+		return( mov_posible )
+
+
+	def mur_to_champs_libres( self , mur , position_sortie ):
+
+		champs_libres = []
+
+		for i0 in range( 15 ):
+			
+			for i1 in range( 15 ):
+				
+				if ( ( i1 , i0 ) not in mur ) and ( i1 , i0 ) != position_sortie  :
+
+					champs_libres.append( ( i1 , i0 ) )
+
+		return( champs_libres )
+
+
+	def movables_in_champs_libres( self , i , movables  , champs_libres ):
+
+
+		return( len( self.move_posible( movables[ i ] , champs_libres ) ) )
 
 
 
@@ -159,21 +311,16 @@ class Sortie:
 
 	def __init__( self , taille_plateau ):
 
-		self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
+		#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
 
 		self.route_mg = []
+
+		with open("structure.json", "r") as read_file:
+
+			data = json.load(read_file)
+
+		self.position = tuple( data[ 2 ] )
 		
-	
-
-
-class Ligne(object):
-
-	"""docstring for Ligne"""
-
-	pass
-
-
-
 
 
 class Heros:
@@ -182,7 +329,13 @@ class Heros:
 
 	def __init__( self , taille_plateau ):
 
-		self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
+		#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
+
+		with open("structure.json", "r") as read_file:
+
+			data = json.load(read_file)
+
+		self.position = tuple( data[ 1 ] )
 
 		self.objet_ramasse = [] ;
 
@@ -213,6 +366,129 @@ class Heros:
 			print( 'Sélectionner une direction valide !!' )
 
 		return( self.new_pos )
+
+
+
+class Gardien:
+
+	"""docstring for Gardien"""
+	
+	def __init__( self ):
+
+		#self.position = ( 0 , 0)
+
+		with open("structure.json", "r") as read_file:
+
+			data = json.load(read_file)
+
+		self.position = tuple( data[ 2 ] )
+
+
+
+
+		
+plateau0 = Plateau( 15 )
+
+mg0 = Heros(15)
+
+sortie0 = Sortie(15)
+
+position_objets_ramasse = []
+
+
+
+
+
+class ObjetsRamasses:
+
+	"""docstring for Objets"""
+
+	def __init__( self , taille_plateau , nom_de_lobjet ):
+
+
+		champs_libres = plateau0.mur_to_champs_libres( plateau0.mur , sortie0.position )
+
+		champs_libres0 = list( champs_libres )
+
+		movables = [ mg0.position ]
+
+
+		#print( ' les movables avant ' , movables )
+
+		#print( ' champs libre avant ' , champs_libres0 )
+
+		
+		i0 = 0 ;
+
+		while i0 < len( movables ) :
+
+			for i1 in plateau0.move_posible( movables[ i0 ] , champs_libres0 ) :
+
+				movables.append( i1 )
+
+				champs_libres0.remove( i1 )
+
+			i0 += 1
+
+		champs_accessibles = list( movables )
+
+		random.shuffle( champs_accessibles )
+
+
+				
+
+		#print( ' champs libre apres ' , champs_libres0 )
+
+		#print( ' les movables apres ' , movables )
+
+		while ( champs_accessibles[0] in position_objets_ramasse ):
+
+			random.shuffle( champs_accessibles )
+
+		self.position = champs_accessibles[ 0 ]
+
+		position_objets_ramasse.append( champs_accessibles[ 0 ] )
+
+
+		#self.position = ( random.randrange( taille_plateau - 1 ) , random.randrange( taille_plateau - 1 ) )
+
+
+		self.route_mg = []
+
+		self.nom_objet = nom_de_lobjet
+
+		#print( self.position )
+
+	def ramassage( self ):
+		
+		self.position = ( -1 , -1 )
+		
+	
+
+
+aiguille0 = ObjetsRamasses( 15 , 'aiguille' )
+
+tube_plastiqe0 = ObjetsRamasses( 15 , 'tube_plastiqe' )
+
+ether0 = ObjetsRamasses( 15 , 'ether' )
+
+
+
+
+
+
+
+	
+
+
+class Ligne(object):
+
+	"""docstring for Ligne"""
+
+	pass
+
+
+
 
 
 
@@ -300,6 +576,9 @@ class Pas:
 
 
 
+	def make_pas_with_mur( self , curseur , cible  ):
+		pass
+
 
 #def test_initialise( position , tableau ):
 	
@@ -310,8 +589,15 @@ class Pas:
 
 
 
-def main():
 
+
+
+
+
+
+
+def generate_structure():
+	
 	pas = Pas();
 
 	plateau = Plateau(15)
@@ -332,7 +618,7 @@ def main():
 
 	while aiguille.position in position_initialisee :
 		
-		aiguille = ObjetsRamasses( 15 )
+		aiguille = ObjetsRamasses( 15 , 'aiguille' )
 
 	# Ajout de la position de l'aiguille dans la liste des positions occupées
 
@@ -362,7 +648,7 @@ def main():
 
 	while tube_plastiqe.position in position_initialisee :
 		
-		tube_plastiqe = ObjetsRamasses( 15 )
+		tube_plastiqe = ObjetsRamasses( 15 , 'tube_plastiqe' )
 
 	# Ajout de la position du tube en plastiqe dans la liste des positions occupées
 
@@ -392,7 +678,7 @@ def main():
 
 	while ether.position in position_initialisee :
 		
-		ether = ObjetsRamasses( 15 )
+		ether = ObjetsRamasses( 15 , 'ether' )
 
 	# Ajout de la position de l'ether dans la liste des positions occupées
 
@@ -428,7 +714,7 @@ def main():
 
 	position_initialisee.append( sortie.position )
 
-	# Définition de la route que mcgyver emprunte pour atteindre cet objet
+	# Définition de la route que mcgyver emprunte pour atteindre la sorite
 
 	lepas = mg.position
 
@@ -454,59 +740,157 @@ def main():
 	gardien.position = sortie.position
 
 
+	plateaujson = []
 
+	for i0 in plateau.mur :
+		
+		plateaujson.append( list( i0 ) )
 
-	"""	
-	print( 'position mg :' , mg.position )
-	print( 'position de laiguille :' , aiguille.position )
-	print( 'position du tube en plastiqe :' , tube_plastiqe.position )
-	print( 'position de lether :' , ether.position )
+	#print( 'structure json : ' , plateaujson , list( mg.position ) , list(sortie.position) )
+
+	return( [ plateau , mg , sortie , [ aiguille , tube_plastiqe , ether ] ] )
 	
-	print( 'position sortie avant le pas :' , sortie.position )
 
-	mg.position = pas.make_pas( mg.position , sortie.position )
 
-	print( 'position mg apres le pas :' , mg.position )
-	print( 'position sortie apres le pas :' , sortie.position )
+
+
+
+
+"""
+
+	champs_libres = plateau.mur_to_champs_libres( plateau.mur , sortie.position )
+
+	champs_libres0 = list( champs_libres )
+
+	movables = [ mg.position ]
+
+	print( plateau.movables_in_champs_libres( 0 , movables  , champs_libres0 ) )
+
+
+
+"""
+
+	
+	
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main():
+
+
+
+	"""structure = generate_structure()
+
+	mg = structure[1]
+	plateau = structure[0]
+	sortie = structure[2]
+	aiguille = structure[3][0]
+	tube_plastiqe = structure[3][0]
+	ether = structure[3][0]
+
+
+	with open("structure.json", "r") as read_file:
+
+		data = json.load(read_file)
+
+
+	print( len(data) )
+
+	
+
+	
+
+
+
+	champs_libres = plateau0.mur_to_champs_libres( plateau0.mur , sortie0.position )
+
+	champs_libres0 = list( champs_libres )
+
+	movables = [ mg0.position ]
+
+
+	#print( ' les movables avant ' , movables )
+
+	#print( ' champs libre avant ' , champs_libres0 )
+
+
+	
+	i0 = 0 ;
+
+	while i0 < len( movables ) :
+
+		for i1 in plateau0.move_posible( movables[ i0 ] , champs_libres0 ) :
+
+			movables.append( i1 )
+
+			#del champs_libres0[ champs_libres0.index( i1 ) ]
+			champs_libres0.remove( i1 )
+
+		i0 += 1
+
+	champs_accessibles = list( movables )
+
+	random.shuffle( champs_accessibles )
+
+
+			
+
+	#print( ' champs libre apres ' , champs_libres0 )
+
+	#print( ' les movables apres ' , movables )
 
 	"""
 
 
-	
 
 
-	while mg.position != sortie.position :
 
-		DrawConsole( mg.position , [ aiguille , tube_plastiqe , ether ] , sortie.position , plateau.mur)
+
+	while mg0.position != sortie0.position :
+
+		DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
 
 		direction_input = input("Déplacer McGyver !! \n\n j : vers la gauche\n l : vers la droite\n k : vers le bas\n i : vers le haut\n\n ")
 
-		if ( mg.pas_mcgyver( direction_input ) not in plateau.mur ) and ( mg.pas_mcgyver( direction_input ) in plateau.plateauvide ) :
+		if ( mg0.pas_mcgyver( direction_input ) not in plateau0.mur ) and ( mg0.pas_mcgyver( direction_input ) in plateau0.plateauvide ) :
 			
-			mg.position = mg.pas_mcgyver( direction_input )
+			mg0.position = mg0.pas_mcgyver( direction_input )
 
-			if mg.position == aiguille.position :
+			if mg0.position == aiguille0.position :
 
-				mg.objet_ramasse.append( aiguille.nom_objet )
+				mg0.objet_ramasse.append( aiguille0.nom_objet )
 
-				aiguille.ramassage()
+				aiguille0.ramassage()
 
-			elif mg.position == tube_plastiqe.position :
+			elif mg0.position == tube_plastiqe0.position :
 
-				mg.objet_ramasse.append( tube_plastiqe.nom_objet )
+				mg0.objet_ramasse.append( tube_plastiqe0.nom_objet )
 
-				tube_plastiqe.ramassage()
+				tube_plastiqe0.ramassage()
 
-			elif mg.position == ether.position :
+			elif mg0.position == ether0.position :
 
-				mg.objet_ramasse.append( ether.nom_objet )
+				mg0.objet_ramasse.append( ether0.nom_objet )
 
-				ether.ramassage()
+				ether0.ramassage()
 
 
-	DrawConsole( mg.position , [ aiguille , tube_plastiqe , ether ] , sortie.position , plateau.mur)
+	DrawConsole( mg0.position , [ aiguille0 , tube_plastiqe0 , ether0 ] , sortie0.position , plateau0.mur)
 
-	if len( mg.objet_ramasse ) == 3 :
+	if len( mg0.objet_ramasse ) == 3 :
 		
 		print('\n\n Gagné ')
 
@@ -515,7 +899,10 @@ def main():
 		print('\n\n Perdu ')
 
 
-				
+
+
+
+
 		 
 
 		
